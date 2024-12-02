@@ -43,7 +43,8 @@ var jiraProps = {};
 		console.log("Monkey: outputting propsFields");
 		console.log("Monkey: propFields", propFields);
 		jiraProps.issueId = propFields.issueId;
-		console.log("Monkey: issueId", jiraProps);
+		jiraProps.projectId = propFields.key;
+		console.log("Monkey: jiraProps", jiraProps);
 	}
 
 	async function waitForElement(selector) {
@@ -69,6 +70,7 @@ var jiraProps = {};
 	async function updateField(fieldSelector, targetProp, defaultValue, settingValue, action) {
 		// Wait for the field to be present
 		const field = await waitForElement(fieldSelector);
+		let allCookies = document.cookie;
 
 		// Get the second child element
 		const secondChild = field.children[1];
@@ -79,8 +81,8 @@ var jiraProps = {};
 		console.log("Monkey: action", action);
 		if (secondChild && secondChild.innerText === defaultValue) {
 			console.log("Monkey: Fields are default, updating");
-            console.log("Monkey: jiraCookies", jiraCookies);
-            console.log("Monkey: jiraProps", jiraProps);
+			console.log("Monkey: jiraCookies", jiraCookies);
+			console.log("Monkey: jiraProps", jiraProps);
 
 			if (action == "ajax") {
 				let bodyMessage = `atl_token=${jiraCookies["atlassian.xsrf.token"]}&fieldsToForcePresent=timetracking&issueId=${jiraProps.issueId}&singleFieldEdit=true&skipScreenCheck=true&${targetProp}=${settingValue}`;
@@ -100,18 +102,42 @@ var jiraProps = {};
 							"Sec-Fetch-Mode": "cors",
 							"Sec-Fetch-Site": "same-origin",
 							Priority: "u=0",
+							Cookie: allCookies
 						},
-						referrer: "https://company.atlassian.net/browse/STVI-6069",
+						referrer: "https://company.atlassian.net/",
 						body: bodyMessage,
 						method: "POST",
 						mode: "cors",
 					}
 				);
+
 				console.log("Monkey: response", response);
 				const data = await response.json();
 				console.log("Monkey: data", data);
 			} else if (action == "custom") {
 				console.log("Monkey: Custom Action");
+				let response = await fetch(`https://company.atlassian.net/rest/api/3/issue/${jiraProps.projectId}/`, {
+					"credentials": "include",
+					"headers": {
+						"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0",
+						"Accept": "application/json,text/javascript,*/*",
+						"Accept-Language": "en-US,en;q=0.5",
+						"Content-Type": "application/json",
+						"X-Atlassian-Capability": "ISSUE_VIEW--other",
+						"Sec-Fetch-Dest": "empty",
+						"Sec-Fetch-Mode": "cors",
+						"Sec-Fetch-Site": "same-origin",
+						"Priority": "u=0"
+					},
+					"referrer": "https://company.atlassian.net/",
+					"body": `{\"fields\":{\"${targetProp}\":${settingValue}}}`,
+					"method": "PUT",
+					"mode": "cors"
+				});
+				console.log("Monkey: response", response);
+				//await response.json(); and timeout
+				let data = await response.text();
+				console.log("Monkey: data", data);	
 			}
 		} else {
 			console.log("Monkey: Fields are not default");
@@ -128,7 +154,7 @@ var jiraProps = {};
 		console.log("Monkey: GETTING COOKIES");
 		getCookies();
 		console.log("Monkey: Done Cookies");
-
+		//all works by ajax
 		await getJiraProps();
 
 		// Process first field
@@ -137,17 +163,18 @@ var jiraProps = {};
 			"customfield_10053",
 			"None",
 			30,
-			"custom"
+			"ajax"
 		);
 
 		// Process second field
 		await updateField(
 			'[data-testid="issue-view.issue-base.context.original-estimate.timeoriginalestimate',
-			"timeoriginalestimate",
+			"timetracking_originalestimate",
 			"0m",
 			"30m",
 			"ajax"
 		);
+		//timetracking_originalestimate
 		console.log("Monkey: Completed auto ");
 	}
 
