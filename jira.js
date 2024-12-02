@@ -139,6 +139,7 @@ var jiraProps = {};
 		// Process first field
 		await updateField(
 			'[data-testid="issue.views.issue-base.context.number.customfield_10053"]',
+			"customfield_10053",
 			"None",
 			30,
 			"custom"
@@ -146,7 +147,8 @@ var jiraProps = {};
 
 		// Process second field
 		await updateField(
-			'[data-testid="issue-view.issue-base.context.original-estimate.timeoriginalestimate', 'timeoriginalestimate',
+			'[data-testid="issue-view.issue-base.context.original-estimate.timeoriginalestimate',
+			"timeoriginalestimate",
 			"0m",
 			"30m",
 			"ajax"
