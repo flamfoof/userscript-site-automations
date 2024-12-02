@@ -29,22 +29,49 @@ var jiraProps = {};
 
 	async function getJiraProps() {
 		console.log("Monkey: Getting Jira Props");
+		let stalkerElement = null
 		//if window.jira is undefined, then loop wait
-		while (unsafeWindow.JIRA == undefined) {
-			console.log("Monkey: window.JIRA is undefined, waiting...");
-			console.log(unsafeWindow.JIRA);
+		try {
+			while (unsafeWindow.JIRA == undefined) {
+				console.log("Monkey: window.JIRA is undefined, waiting...");
+				console.log(window.JIRA);
+				await sleep(2000);
+			}
+
+			stalkerElement = unsafeWindow.JIRA.Issue.getStalker().context.activeElement;
+
+			let propFields =
+				stalkerElement[Object.keys(stalkerElement)[1]].children._owner.stateNode.props.issueViewRelayFragment;
+			console.log("Monkey: outputting propsFields");
+			console.log("Monkey: propFields", propFields);
+			jiraProps.issueId = propFields.issueId;
+			jiraProps.projectId = propFields.key;
+			console.log("Monkey: jiraProps", jiraProps);
+		} catch (error) {
 			await sleep(2000);
+			stalkerElement = unsafeWindow.JIRA.Issue.getStalker().context.activeElement;
+
+			console.log("Monkey: Error getting Jira Props");
+			console.log("Monkey: error", error);
+
+			let altStalkerElement = stalkerElement.querySelector(
+				'[data-testid="issue.views.issue-details.issue-layout.container-left"]'
+			);
+
+			console.log("Monkey: stalkerElement", stalkerElement);
+			console.log("Monkey: altStalkerElement", altStalkerElement);
+			let propFields =
+			altStalkerElement[Object.keys(altStalkerElement)[1]].children._owner.stateNode.props.issueViewRelayFragment;
+			console.log("Monkey: outputting propsFields");
+			console.log("Monkey: propFields", propFields);
+			jiraProps.issueId = propFields.issueId;
+			jiraProps.projectId = propFields.key;
+			console.log("Monkey: jiraProps", jiraProps);
 		}
 
-		let propFields =
-			unsafeWindow.JIRA.Issue.getStalker().context.activeElement[
-				Object.keys(unsafeWindow.JIRA.Issue.getStalker().context.activeElement)[1]
-			].children._owner.stateNode.props.issueViewRelayFragment;
-		console.log("Monkey: outputting propsFields");
-		console.log("Monkey: propFields", propFields);
-		jiraProps.issueId = propFields.issueId;
-		jiraProps.projectId = propFields.key;
-		console.log("Monkey: jiraProps", jiraProps);
+		if (jiraProps.issueId == undefined || jiraProps.projectId == undefined) {
+			process.exit(1);
+		}
 	}
 
 	async function waitForElement(selector) {
@@ -102,7 +129,7 @@ var jiraProps = {};
 							"Sec-Fetch-Mode": "cors",
 							"Sec-Fetch-Site": "same-origin",
 							Priority: "u=0",
-							Cookie: allCookies
+							Cookie: allCookies,
 						},
 						referrer: "https://company.atlassian.net/",
 						body: bodyMessage,
@@ -117,30 +144,31 @@ var jiraProps = {};
 			} else if (action == "custom") {
 				console.log("Monkey: Custom Action");
 				let response = await fetch(`https://company.atlassian.net/rest/api/3/issue/${jiraProps.projectId}/`, {
-					"credentials": "include",
-					"headers": {
-						"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0",
-						"Accept": "application/json,text/javascript,*/*",
+					credentials: "include",
+					headers: {
+						"User-Agent":
+							"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0",
+						Accept: "application/json,text/javascript,*/*",
 						"Accept-Language": "en-US,en;q=0.5",
 						"Content-Type": "application/json",
 						"X-Atlassian-Capability": "ISSUE_VIEW--other",
 						"Sec-Fetch-Dest": "empty",
 						"Sec-Fetch-Mode": "cors",
 						"Sec-Fetch-Site": "same-origin",
-						"Priority": "u=0"
+						Priority: "u=0",
 					},
-					"referrer": "https://company.atlassian.net/",
-					"body": `{\"fields\":{\"${targetProp}\":${settingValue}}}`,
-					"method": "PUT",
-					"mode": "cors"
+					referrer: "https://company.atlassian.net/",
+					body: `{\"fields\":{\"${targetProp}\":${settingValue}}}`,
+					method: "PUT",
+					mode: "cors",
 				});
 				console.log("Monkey: response", response);
 				//await response.json(); and timeout
 				let data = await response.text();
-				console.log("Monkey: data", data);	
+				console.log("Monkey: data", data);
 			}
 		} else {
-			console.log("Monkey: Fields are not default");
+			console.log("Monkey: No need to update");
 		}
 		return;
 	}
