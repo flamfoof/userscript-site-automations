@@ -3,17 +3,17 @@
 // @version      0.1
 // @description  Automates field updates on Jira
 // @author       Flamfoof
-// @match        https://company.atlassian.net/browse/<PROJECTID>*
+// @match        https://company.atlassian.net/browse/STVI*
 // @grant        none
 // ==/UserScript==
+
+var jiraCookies = {};
+var jiraProps = {};
 
 (function () {
 	"use strict";
 
 	console.log("Monkey: Starting ");
-
-	var cookies = {};
-	var jiraProps = {};
 
 	function getCookies() {
 		var pageCookies = document.cookie.split(";");
@@ -21,8 +21,10 @@
 		console.log("Monkey: pageCookies", pageCookies);
 		for (var i = 0; i < pageCookies.length; i++) {
 			var cookie = pageCookies[i].split("=");
-			cookies[cookie[0].trim()] = cookie[1];
+			jiraCookies[cookie[0].trim()] = cookie[1];
 		}
+
+		console.log("Monkey: jiraCookies[atlassian.xsrf.token]", jiraCookies["atlassian.xsrf.token"]);
 	}
 
 	async function getJiraProps() {
@@ -64,16 +66,25 @@
 		});
 	}
 
-	async function updateField(fieldSelector, defaultValue, settingValue, action) {
+	async function updateField(fieldSelector, targetProp, defaultValue, settingValue, action) {
 		// Wait for the field to be present
 		const field = await waitForElement(fieldSelector);
 
 		// Get the second child element
 		const secondChild = field.children[1];
 		console.log("Monkey: secondChild", secondChild);
+		console.log("Monkey: secondChild.innerText", secondChild.innerText);
+		console.log("Monkey: defaultValue", defaultValue);
+		console.log("Monkey: settingValue", settingValue);
+		console.log("Monkey: action", action);
 		if (secondChild && secondChild.innerText === defaultValue) {
-            console.log("Monkey: Fields are default, updating");
+			console.log("Monkey: Fields are default, updating");
+            console.log("Monkey: jiraCookies", jiraCookies);
+            console.log("Monkey: jiraProps", jiraProps);
+
 			if (action == "ajax") {
+				let bodyMessage = `atl_token=${jiraCookies["atlassian.xsrf.token"]}&fieldsToForcePresent=timetracking&issueId=${jiraProps.issueId}&singleFieldEdit=true&skipScreenCheck=true&${targetProp}=${settingValue}`;
+				console.log("Monkey: body", bodyMessage);
 				let response = await fetch(
 					"https://company.atlassian.net/secure/AjaxIssueAction.jspa?decorator=none",
 					{
@@ -90,22 +101,27 @@
 							"Sec-Fetch-Site": "same-origin",
 							Priority: "u=0",
 						},
-						referrer: "https://company.atlassian.net/browse/STVI-6044",
-						body: `atl_token=${cookies["atlassian.xsrf.token"]}&fieldsToForcePresent=timetracking&issueId=${jiraProps.issueId}&singleFieldEdit=true&skipScreenCheck=true&timetracking_originalestimate=${settingValue}`,
+						referrer: "https://company.atlassian.net/browse/STVI-6069",
+						body: bodyMessage,
 						method: "POST",
 						mode: "cors",
 					}
 				);
-                console.log("Monkey: response", response);
+				console.log("Monkey: response", response);
 				const data = await response.json();
 				console.log("Monkey: data", data);
 				if (data) {
 					console.log("Monkey: data", data);
 				}
 			} else if (action == "custom") {
-
-            }
+				console.log("Monkey: Custom Action");
+				return;
+			}
+		} else {
+			console.log("Monkey: Fields are not default");
+			return;
 		}
+		return;
 	}
 
 	function sleep(ms) {
@@ -119,21 +135,21 @@
 		console.log("Monkey: Done Cookies");
 
 		await getJiraProps();
-		console.log("Monkey: Timer done, starting");
+
 		// Process first field
 		await updateField(
 			'[data-testid="issue.views.issue-base.context.number.customfield_10053"]',
-			"0m",
-			"30m",
-			"ajax"
+			"None",
+			30,
+			"custom"
 		);
 
 		// Process second field
 		await updateField(
-			'[data-testid="issue-view.issue-base.context.original-estimate.timeoriginalestimate',
-			"None",
-			30,
-			"custom"
+			'[data-testid="issue-view.issue-base.context.original-estimate.timeoriginalestimate', 'timeoriginalestimate',
+			"0m",
+			"30m",
+			"ajax"
 		);
 		console.log("Monkey: Completed auto ");
 	}
