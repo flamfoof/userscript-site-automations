@@ -94,7 +94,11 @@ var jiraProps = {};
 		});
 	}
 
-	async function updateField(fieldSelector, targetProp, defaultValue, settingValue, action) {
+	async function updateField(fieldSelector, targetProp, defaultValue, settingValue, action, doIt = true) {
+		if(!doIt) {
+			return;
+		}
+
 		// Wait for the field to be present
 		const field = await waitForElement(fieldSelector);
 		let allCookies = document.cookie;
@@ -182,6 +186,19 @@ var jiraProps = {};
 		console.log("Monkey: GETTING COOKIES");
 		getCookies();
 		console.log("Monkey: Done Cookies");
+
+		try {
+			let notDefault = await waitForElement('[data-testid="issue-view.issue-base.context.original-estimate.timeoriginalestimate');
+			console.log("Monkey: notDefault", notDefault.children[1].innerText);
+			if(notDefault.children[1].innerText != "0m") {
+				process.exit(1);
+			}
+		} catch (error) {
+			console.log("Monkey: error", error);
+			process.exit(1);
+		}
+ 
+
 		//all works by ajax
 		await getJiraProps();
 
