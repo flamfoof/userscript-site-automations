@@ -110,16 +110,11 @@ var jiraProps = {};
 				console.log("Monkey: response", response);
 				const data = await response.json();
 				console.log("Monkey: data", data);
-				if (data) {
-					console.log("Monkey: data", data);
-				}
 			} else if (action == "custom") {
 				console.log("Monkey: Custom Action");
-				return;
 			}
 		} else {
 			console.log("Monkey: Fields are not default");
-			return;
 		}
 		return;
 	}
