@@ -1,0 +1,25 @@
+README.md
+
+To install these scripts, you will need to install a browser extension that allows you to run user scripts.
+
+For Chrome, you can use Tampermonkey. To install, follow these steps:
+
+1. Go to the Chrome Web Store and search for Tampermonkey.
+2. Click the "Add to Chrome" button.
+3. Click the "Add" button in the popup that appears.
+
+For Firefox, you can use Greasemonkey. To install, follow these steps:
+
+1. Go to the Firefox Add-ons page and search for Greasemonkey.
+2. Click the "Add to Firefox" button.
+3. Click the "Add" button in the popup that appears.
+
+Once you have installed the extension, you can import the scripts. To do this, you will need to zip all of the scripts into a single file and import that file.
+
+To zip the files, follow these steps:
+
+1. Open a terminal and navigate to the directory containing the scripts.
+2. Run the command `zip jira-scripts.zip *.js` to create a zip file containing all of the scripts.
+3. Go to the extension's settings page and click the "Import" button.
+4. Select the zip file you created and click the "Open" button.
+5. The scripts should now be imported and you can use them to automate tasks in Jira.
