@@ -78,31 +78,31 @@ window.addEventListener(
 			let formGetFetcherCookie = `${docCookieSessionToken}${this.document.cookie}`;
 			console.log(formGetFetcherCookie);
 
-			formGetFetcher = await fetch(
-				fetchUrl,
-				{
-					headers: {
-						"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
-						Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-						"Accept-Language": "en-US,en;q=0.5",
-						"Content-Type": "application/x-www-form-urlencoded",
-						"Upgrade-Insecure-Requests": "1",
-						"Sec-Fetch-Dest": "document",
-						"Sec-Fetch-Mode": "navigate",
-						"Sec-Fetch-User": "?1",
-						Priority: "u=0, i",
-						cookie: formGetFetcherCookie,
-					},
-					body: bodyInitFormRequest,
-					method: "POST",
-					mode: "cors",
-					referrer: window.location.href, // Top-level property
-					referrerPolicy: "no-referrer-when-downgrade", // Top-level property
-				},
-			);
+			// formGetFetcher = await fetch(
+			// 	fetchUrl,
+			// 	{
+			// 		headers: {
+			// 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
+			// 			Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+			// 			"Accept-Language": "en-US,en;q=0.5",
+			// 			"Content-Type": "application/x-www-form-urlencoded",
+			// 			"Upgrade-Insecure-Requests": "1",
+			// 			"Sec-Fetch-Dest": "document",
+			// 			"Sec-Fetch-Mode": "navigate",
+			// 			"Sec-Fetch-User": "?1",
+			// 			Priority: "u=0, i",
+			// 			cookie: formGetFetcherCookie,
+			// 		},
+			// 		body: bodyInitFormRequest,
+			// 		method: "POST",
+			// 		mode: "cors",
+			// 		referrer: window.location.href, // Top-level property
+			// 		referrerPolicy: "no-referrer-when-downgrade", // Top-level property
+			// 	},
+			// );
 			console.log("formget fetching");
-			let getFetcherBody = await formGetFetcher.text();
-			const getFetcherDoc = parser.parseFromString(getFetcherBody, "text/html");
+			// let getFetcherBody = await formGetFetcher.text();
+			const getFetcherDoc = parser.parseFromString(initialBody, "text/html");
 			console.log(getFetcherDoc);
 			let getFetcherCsrf = getFetcherDoc.getElementsByName("csrfmiddlewaretoken")[0].value;
 
