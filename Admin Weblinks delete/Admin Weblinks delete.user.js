@@ -40,43 +40,43 @@ window.addEventListener(
 			let newSessionId = null;
 			let formInitCookie = `${docCookieSessionToken}${document.cookie}`;
 			console.log(formInitCookie);
-			formInitialFetcher = await fetch(
-				fetchUrl,
-				{
-					headers: {
-						"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
-						Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-						"Accept-Language": "en-US,en;q=0.5",
-						"Upgrade-Insecure-Requests": "1",
-						"Sec-Fetch-Dest": "document",
-						"Sec-Fetch-Mode": "navigate",
-						"Sec-Fetch-Site": "none",
-						"Sec-Fetch-User": "?1",
-						Priority: "u=0, i",
-						cookie: formInitCookie,
-					},
-					referrer: window.location.href, // Top-level property
-					referrerPolicy: "no-referrer-when-downgrade", // Top-level property
-					method: "GET",
-					mode: "cors",
-				},
-			).then((response) => {
-				return response.text();
-			});
+// 			formInitialFetcher = await fetch(
+// 				fetchUrl,
+// 				{
+// 					headers: {
+// 						"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
+// 						Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+// 						"Accept-Language": "en-US,en;q=0.5",
+// 						"Upgrade-Insecure-Requests": "1",
+// 						"Sec-Fetch-Dest": "document",
+// 						"Sec-Fetch-Mode": "navigate",
+// 						"Sec-Fetch-Site": "none",
+// 						"Sec-Fetch-User": "?1",
+// 						Priority: "u=0, i",
+// 						cookie: formInitCookie,
+// 					},
+// 					referrer: window.location.href, // Top-level property
+// 					referrerPolicy: "no-referrer-when-downgrade", // Top-level property
+// 					method: "GET",
+// 					mode: "cors",
+// 				},
+// 			).then((response) => {
+// 				return response.text();
+// 			});
 			console.log("init fetching");
-			let initialBody = formInitialFetcher;
-			const initDoc = parser.parseFromString(initialBody, "text/html");
-			console.log(initDoc);
-			let csrfFormToken = initDoc.getElementById("changelist-form").children[0].value;
+// 			let initialBody = formInitialFetcher;
+// 			const initDoc = parser.parseFromString(initialBody, "text/html");
+// 			console.log(initDoc);
+			let csrfFormToken = document.getElementById("changelist-form").children[0].value;
 			let initFormRequestStart = "csrfmiddlewaretoken=" + csrfFormToken + "&action=delete_selected&select_across=0&index=0";
-			let initFormRequestMiddle = "";
-			idList.forEach((id) => {
-				initFormRequestMiddle += `&_selected_action=${id}`;
-			});
-			let bodyInitFormRequest = initFormRequestStart + initFormRequestMiddle;
-			console.log(bodyInitFormRequest);
-			let formGetFetcherCookie = `${docCookieSessionToken}${this.document.cookie}`;
-			console.log(formGetFetcherCookie);
+// 			let initFormRequestMiddle = "";
+// 			idList.forEach((id) => {
+// 				initFormRequestMiddle += `&_selected_action=${id}`;
+// 			});
+// 			let bodyInitFormRequest = initFormRequestStart + initFormRequestMiddle;
+// 			console.log(bodyInitFormRequest);
+// 			let formGetFetcherCookie = `${docCookieSessionToken}${this.document.cookie}`;
+// 			console.log(formGetFetcherCookie);
 
 			// formGetFetcher = await fetch(
 			// 	fetchUrl,
@@ -102,11 +102,11 @@ window.addEventListener(
 			// );
 			console.log("formget fetching");
 			// let getFetcherBody = await formGetFetcher.text();
-			const getFetcherDoc = parser.parseFromString(initialBody, "text/html");
-			console.log(getFetcherDoc);
-			let getFetcherCsrf = getFetcherDoc.getElementsByName("csrfmiddlewaretoken")[0].value;
+			// const getFetcherDoc = parser.parseFromString(initialBody, "text/html");
+			// console.log(getFetcherDoc);
+			let getFetcherCsrf = csrfFormToken
 
-			let formSendRequestStart = "csrfmiddlewaretoken=" + getFetcherCsrf;
+			let formSendRequestStart = "csrfmiddlewaretoken=" + csrfFormToken;
 			let formSendRequestMiddle = "";
 			idList.forEach((id) => {
 				formSendRequestMiddle += `&_selected_action=${id}`;
@@ -114,7 +114,7 @@ window.addEventListener(
 			let formSendRequestEnd = "&action=delete_selected&post=yes";
 			let bodyFormSendRequest = formSendRequestStart + formSendRequestMiddle + formSendRequestEnd;
 			console.log(bodyFormSendRequest);
-			let formSendFetcherCookie = `${docCookieSessionToken}${this.document.cookie}`;
+			let formSendFetcherCookie = formInitCookie;
 			console.log(formSendFetcherCookie);
 
 			formSendFetcher = await fetch(
