@@ -10,7 +10,8 @@ console.log("hi");
 let siteStatus =
 	document.body.textContent.includes("502 Bad Gateway") ||
 	document.body.textContent.includes("504 Gateway") ||
-	document.body.textContent.includes("503 Service");
+	document.body.textContent.includes("503 Service") || 
+	document.body.textContent.includes("Internal Server Error");
 if (siteStatus) {
 	setTimeout(function () {
 		window.location.reload();

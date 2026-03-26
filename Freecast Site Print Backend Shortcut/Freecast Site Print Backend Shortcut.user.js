@@ -23,9 +23,8 @@ function getContentData() {
 
 	for (let resource of resources) {
 		if (
-			resource.name.includes("guide/api/v1/watch-freecast-com/web/") ||
-			resource.name.includes("guide/api/v2/watch-freecast-com/web/") ||
-			resource.name.includes("guide/api/v4/watch-freecast-com/web/vod/")
+			resource.name.match(/guide\/api\/v.*?\/watch-freecast-com\/web\/(movie|show)/g) ||
+			resource.name.match(/guide\/api\/v.*?\/watch-freecast-com\/web\/vod\/(movie|show)/g)
 		) {
 			let authToken = JSON.parse(window.localStorage["persist:auth"]).jwt_token.replaceAll('"', "");
 			console.log(resource);
